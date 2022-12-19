@@ -1,11 +1,5 @@
-var currentScene = 2;
-var currentMoney = 0;
-var currentBet = 0;
-var playerHand = [];
-var dealerHand = [];
-var playerScore = 0;
-var dealerScore = 0;
-var deck = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+var currentScene = 1;
+
 var DrawBitmoji= function (x, y, DiazH) // bitmoji function
             {
         noStroke();
@@ -46,6 +40,7 @@ var DrawBitmoji= function (x, y, DiazH) // bitmoji function
         //top of mouth
         
         
+        
         noStroke();
         fill(214,108, 55); // neck fill
         rect(x-(DiazH/150*24),y+(DiazH/160*46),DiazH/150*51,DiazH/150*19); // neck 
@@ -53,11 +48,11 @@ var DrawBitmoji= function (x, y, DiazH) // bitmoji function
         rect(x+(DiazH/150*3),y+(DiazH/150*50),DiazH/150*25,DiazH/150*-23); // neck
         
         
-        fill(255, 0, 0);
+        fill(5, 34, 255);
         quad(x-(DiazH/150*74), y+(DiazH/150*114), x+(DiazH/150*80), y+(DiazH/150*117), x+(DiazH/150*28), y+(DiazH/150*66), x-(DiazH/150*23), y+(DiazH/150*66));// chest
         
         
-        fill(0, 0, 0); 
+        fill(255, 255, 255); 
         textSize(7);
         text("MD POLO", x-(DiazH/150*23), y+(DiazH/150*97)); 
         }; 
@@ -127,78 +122,6 @@ var drawbitmoji=function(x,y,h) {
     bitmojihead(x,y,h);
     bitmojibody(x,y,h);
 }; // My bitmoji code
-var Card = function(x, y, width, height, suit, value){
-    this.x = x || 0;
-    this.y = y || 0;
-    this.width = width || 109;
-    this.height = height || 50;
-    this.suit = suit || "suit";
-    this.value = value || "" ;
-};
-
-var draw_card = function(Card) {
-    fill(255, 255, 255);
-    rect(Card.x, Card.y, Card.width, Card.height);
-    fill(0, 0, 0);
-    // println(Card.value);
-    textSize(25);
-    text(Card.value, Card.x + 20, Card.y + 27);
-    textSize(13);
-    text(Card.suit, Card.x + 7, Card.y + 90);
-    
-};
-
-var card_array = [];
-
-for(var i = 0; i < 4; i ++) { // looping thru the suits
-    for (var j = 1; j < 14; j ++) { // looping thru the values
-    var value;
-    // 12 is queen, 11 is jack, 1 is ace
-    if (j === 13) {
-        value = "King";
-    } else {
-        value = j;
-    }
-    var lone_card;
-        if (i === 0) {
-            lone_card = new Card(0, 0, 50, 100, "hearts", value); // 3
-        }
-        // 1 of hearts, 2 of hearts, 3 of hearts
-        if (i === 1) {
-            lone_card = new Card(0, 0, 20, 50, "spades", value);
-        }
-        if (i === 2) {
-            lone_card = new Card(0, 0, 20, 50, "diamonds", value);
-        }
-        if (i === 3) {
-            lone_card = new Card(0, 0, 20, 50, "clubs", value);
-        }
-    card_array.push(lone_card);
-    }
-}
-//println(card_array.length);
-for (var i = 0; i < card_array.length; i ++) {
-    //println(card_array[i].value + " of " + card_array[i].suit);
-}
-// 1                    11  12 13
-// A 2 3 4 5 6 7 8 9 10 J   Q   K
-draw_card(card_array[0]);
-card_array[1].x = 100;
-card_array[1].y = 0;
-draw_card(card_array[1]);
-
-
-// Used to code the buttons. Made using parameters for them easier
-var card = function(config){
-this.x = config.x || 0;
-    this.y = config.y || 0;
-    this.width = config.width || 109;
-    this.height = config.height || 50;
-    this.suit = config.suit || "Suit";
-    this.number = config.number || -1 ;
-};
-
-var cards = [card];
 
 var Button = function(config) {
     this.x = config.x || 0;
@@ -231,45 +154,74 @@ Button.prototype.handleMouseClick = function() {
     }
 };
 
-var btnStand = new Button({  // button for stand
-    x: 215,
-    y: 235,
-    label: "   Stand",
+// Splash code here
+
+var btnStart = new Button({ //Code for start button on the splash screen
+    x:245,
+    y:450,
+    width:150,
+    height:65,
+    color:color(247, 250, 250),
+    label:"  Start Game",
     onClick: function() {
-        println(3);
+        currentScene = 2;
     }
 });
 
-btnStand.draw();
+var splashScreen = function() {
+    background(18, 3, 3);
+    fill(240, 240, 240);
+    textSize(24);
+    text("Osman Barrie And Marcus Diaz", 125, 25);
+    textSize(15);
+    text("Blackjack, often known as 21 The goal of the card game is \nto be given cards with a higher value than the dealer's, up to \nbut not including 21. The dealer may choose from one 52-card deck,\ntwo, or more decks from a shoe-shaped container. \nFace cards and aces both have a value of 10. ", 50, 265);
+    drawbitmoji(195,127,100);
+    btnStart.draw();
+    DrawBitmoji(465,109,139);
+};
 
-var playerHit = function() { // for the hit button
-    fill(255, 255, 255);
-    rect(Card.x, Card.y, Card.width, Card.height);
+// Game code below 
+
+var card_array = []; // cards that the player and dealer can take 
+var currentBet = 0;
+var playerHand = [];
+var dealerHand = [];
+var playerScore = 0;
+var dealerScore = 0;
+var bankBalance = 0;
+var aceCount = 0;   // REVIEW 
+
+
+var show_Card = function(card, x, y){ 
+    noStroke();
+    textSize(15);
     fill(0, 0, 0);
-    // println(Card.value);
-    textSize(25);
-    text(Card.value, Card.x + 20, Card.y + 27);
-    textSize(13);
-    text(Card.suit, Card.x + 7, Card.y + 90);
-    playerScore = playerScore + Card.value;
-    println(2);
+    rect(x, y, 60, 100);
+    fill(255, 255, 255);
+    text (card.suit, x + 7, y + 20);
+    text(card.value, x+ 20, y + 55);
 };
 
-var btnHit = new Button({ // button for hit 
-    x: 65,
-    y: 235,
-    label: "      Hit",
-    onClick: function() {
-      deck[floor (random(0,deck.length))]; 
+var calculateScore = function (hand) {
+    var score = 0;
+  for (var i = 0; i < hand.length; i++) {
+    if (hand[i].value === "A") {
+      aceCount++;
+    } else {
+      score += hand[i].value;
     }
-});
-
-btnStand.draw();
-
-mouseClicked = function() {
-    btnStand.handleMouseClick();
-    btnHit.handleMouseClick();
+  }  
+  // handle aces as the highest value that doesn't bust the hand
+  while (aceCount > 0 && score + 11 <= 21)     {
+    score += 11;
+    aceCount--;
+     }
+  // any remaining aces are worth 1 point
+  score += aceCount;
+  return score;
 };
+
+// Card consturctor 
 var Card = function(x, y, width, height, suit, value){
     this.x = x || 0;
     this.y = y || 0;
@@ -279,77 +231,7 @@ var Card = function(x, y, width, height, suit, value){
     this.value = value || "" ;
 };
 
-var card_array = [];
- // This is the function were I draw the second scene were the game is played
-
-    var secondScene = function(){
-      
-    background(255, 0, 0);
-      currentBet = 0;  
-      
-for (var i = 0; i < 4; i++){
-    fill(0, 0, 0);
-    ellipse(i*104 + 46, 350 , 75, 75);
-    fill(255, 0, 255);
-    textSize(30);
-    text("  "+ 100 * (i + 1) ,105*i,333);
-    text("  " + currentBet  , 30, 49);  
-    btnStand.draw();
-    btnHit.draw();
-}
-
-//  mouseClicked = function() {
-//      if ( mouseX > 10 && mouseX < 86  && mouseY > 314 && mouseY < 390){
-//          currentBet = currentBet + 100; 
-         
-//      } else if ( mouseX > 40 && mouseX < 185  && mouseY > 314 && mouseY < 390){
-//          currentBet = currentBet + 200; 
-//      } else if ( mouseX > 40 && mouseX < 295  && mouseY > 314 && mouseY < 390){
-//          currentBet = currentBet + 300; 
-//      } else if ( mouseX > 40 && mouseX < 400  && mouseY > 314 && mouseY < 390) {
-//          currentBet = currentBet + 400; 
-//      } // change numbers 
-     
-//         println(currentBet);
-//  };
-   
-    };
-    
-var btnStart = new Button({ //Code for start button on the splash screen
-    x:123,
-    y:330,
-    width:150,
-    height:65,
-    color:color(247, 250, 250),
-    label:"Start Game",
-    onClick: function() {
-    currentScene = 2;
-    secondScene();
-    }
-});
-
-//Code for the first scene with all the info and the start button
-var splashScreen = function() {
-    background(18, 3, 3);
-    fill(240, 240, 240);
-    textSize(24);
-    text("Osman Barrie And Marcus Diaz", 30, 25);
-    textSize(15);
-    text(" This is Black Jack.To play the game   ", 1, 222);
-    drawbitmoji(102,127,86);
-    btnStart.draw();
-    DrawBitmoji(274,127,100);
-        };
-
-
-mouseReleased = function(){ // when mouse released for the buttons to work
-    if (currentScene === 1) {
-        btnStart.handleMouseClick();
-    }
-    };
-    
-    
-//Code to draw the scenes for one and two. And to have them show up in order with the splashscreen first and the scene 2 or the game scene 2
+// Creates cards of suites that go into card_array 
 for(var i = 0; i < 4; i ++) { // looping thru the suits
     for (var j = 1; j < 14; j ++) { // looping thru the values
     var value;
@@ -372,53 +254,135 @@ for(var i = 0; i < 4; i ++) { // looping thru the suits
         }
         if (i === 3) {
             lone_card = new Card(0, 0, 20, 50, "clubs", value);
-        }
+        } 
     card_array.push(lone_card);
     }
 }
-
-//println(card_array.length);
-
 for (var i = 0; i < card_array.length; i ++) {
-    //println(card_array[i].value + " of " + card_array[i].suit);
+    // println(card_array[i].value + " of " + card_array[i].suit); // Used for debugging 
 }
 
-// Function to deal a card to the player
-
-function dealToPlayer() {
-  // Choose a random card from the deck
-  var card = deck[Math.floor(Math.random() * deck.length)];
-
-  // Add the card to the player's hand
-  playerHand.push(card);
-
-  // Update the player's score
-  if (card === "A") {
-      
-    // Ace can be worth 1 or 11 points
-    
-    if (playerScore + 11 <= 21) {
-      playerScore += 11;
-    
-    } else {
-      playerScore += 1;
-    
+// Betting buttons 
+var btn100 = new Button({  // button for stand
+    x: 10,
+    y: 500,
+    label: "   $100",
+    onClick: function() {
+        currentBet += 100;
     }
+}); 
+var btn200 = new Button({  // button for stand
+    x: 155,
+    y: 500,
+    label: "   $200",
+    onClick: function() {
+        currentBet += 200;
+    }
+}); 
+var btn300 = new Button({  // button for stand
+    x: 300,
+    y: 500,
+    label: "   $300",
+    onClick: function() {
+        currentBet += 300;
+    }
+});
+
+var btn400 = new Button({  // button for stand
+    x: 450,
+    y: 500,
+    label: "   $400",
+    onClick: function() {
+        currentBet += 400;
+    }
+});
+
+var btnStand = new Button({  // button for stand
+    x: 335,
+    y: 370,
+    label: "   Stand",
+    onClick: function() {
+    var top_card = card_array.pop();
+    dealerHand.push(top_card);  
+   if (dealerHand.length > 7){
+    println("Too Many Cards!!");
+    } // TODO: implment 
+    // dealer would draw 
+    }
+});
+
+var btnHit = new Button({ // button for hit 
+    x: 140,
+    y: 370,
+    label: "      Hit",
+    onClick: function() {
+    var top_card = card_array.pop();
+    playerHand.push(top_card);
+     if (playerHand.length > 7){
+    println("Too Many Cards!!");
+    }
+     
+    }
+});
+
+// Shuffle the cards in the deck 
+var shuffleArray = function(array) {
+    var counter = array.length;
+    // While there are elements in the array
+    while (counter > 0) {
+        // Pick a random index
+        var ind = Math.floor(Math.random() * counter);
+        // Decrease counter by 1
+        counter--;
+        // And swap the last element with it
+        var temp = array[counter];
+        array[counter] = array[ind];
+        array[ind] = temp;
+    }
+};
+shuffleArray(card_array);
+
+var secondScene = function(){
+    textSize(20);
+    text("Current Bet  = $ " + currentBet , 16,32);
+    text("Player Score = " + calculateScore(playerHand), 16,100);
+    text("Dealer Score = " + calculateScore(dealerHand), 16,65);
+    text("Bank Balance = " + calculateScore(currentBet), 409,28);
+    btnStand.draw();
+    btnHit.draw();
+    btn100.draw();
+    btn200.draw();
+    btn300.draw();
+    btn400.draw();
+    drawbitmoji(520,380,100);
+    DrawBitmoji(56,395,83);
+    for ( var i = 0 ; i < playerHand.length ; i++){
+        show_Card(playerHand[i],10 + 86 * i, 253);
+    }
+        for ( var i = 0 ; i < dealerHand.length ; i++){
+        show_Card(dealerHand[i],10 + 86 * i, 144);
+    }
+    // while
+    };
  
-  } else if (card === "J" || card === "Q" || card === "K") {
-    // Face cards are worth 10 points
-    playerScore += 10;
-  
-  
-  } else {
-    // All other cards are worth their face value
-   playerScore += card;
-  }
-}
 draw = function() {
      if (currentScene === 1) {
          splashScreen(); 
      } else if (currentScene === 2) {
+        background(255, 0, 0);
         secondScene();
      }
- };
+};
+
+mouseReleased = function(){ // when mouse released for the buttons to work
+    if (currentScene === 1) {
+        btnStart.handleMouseClick();
+    } else { 
+        btnStand.handleMouseClick();
+        btnHit.handleMouseClick();
+        btn100.handleMouseClick();
+        btn200.handleMouseClick();
+        btn300.handleMouseClick();
+        btn400.handleMouseClick();   
+    }
+};
